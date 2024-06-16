@@ -5,6 +5,11 @@ plugins {
 }
 
 android {
+
+    buildFeatures {
+        viewBinding = true
+    }
+
     namespace = "com.example.todoapp"
     compileSdk = 34
 
@@ -49,4 +54,10 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    implementation ("com.squareup.picasso:picasso:2.71828")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.2")
+    implementation ("com.google.code.gson:gson:2.10.1")
+
+
 }

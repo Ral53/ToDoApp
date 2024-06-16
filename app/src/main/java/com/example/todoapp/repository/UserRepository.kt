@@ -1,11 +1,13 @@
 package com.example.todoapp.repository
 
+import androidx.lifecycle.LiveData
 import com.example.todoapp.model.User
 
 interface UserRepository {
-    fun signUp(email: String, password: String, user: User, callback: (Boolean, String?) -> Unit)
-    fun login(email: String, password: String, callback: (Boolean, String?) -> Unit)
-    fun addUser(user: User)
-    fun getUser(userId: String, callback: (User?) -> Unit)
-    fun updateUser(user: User)
+    suspend fun signUpUser(email: String, password: String, user: User): Result<Unit>
+    suspend fun logInUser(email: String, password: String): Result<Unit>
+    fun addUserInRealtimeDatabase(userId: String?, user: User)
+    fun getLoggedInUser(userId: String): LiveData<User?>
+    suspend fun resetPassword(email: String): Result<Unit>
+    fun logOut()
 }

@@ -1,0 +1,110 @@
+package com.example.todoapp.activities
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.text.InputType
+import android.util.Log
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.example.todoapp.R
+import com.example.todoapp.databinding.ActivitySignupBinding
+import com.example.todoapp.model.User
+import com.example.todoapp.viewmodel.UserViewModel
+import com.squareup.picasso.Picasso
+
+class SignupActivity : AppCompatActivity() {
+
+    private val userViewModel: UserViewModel by viewModels()
+    private lateinit var binding: ActivitySignupBinding
+
+    private var profileImageUri: Uri? = null
+    private var isPasswordVisible = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivitySignupBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        setupObservers()
+
+        binding.selectImageButton.setOnClickListener {
+            Log.d("SignUp Activity", "Opening Gallery")
+            openGallery()
+        }
+
+        binding.signInTextView.setOnClickListener {
+            Log.d("SignUp Activity", "")
+            startActivity(Intent(this, LoginActivity::class.java))
+            finish()
+        }
+
+        binding.signupButton.setOnClickListener {
+            val name = binding.nameEditText.text.toString()
+            val email = binding.emailEditText.text.toString()
+            val password = binding.passwordEditText.text.toString()
+            val user = User(
+                uid = "", // ID will be set by Firebase Auth
+                name = name,
+                email = email,
+                profilePictureUrl = profileImageUri.toString()
+            )
+            userViewModel.signUp(email, password, user)
+            Log.d("SignUp Activity", "Signed User $user")
+
+        }
+
+        binding.passwordToggle.setOnClickListener {
+            togglePasswordVisibility()
+        }
+    }
+
+    private fun setupObservers() {
+        userViewModel.signUpResult.observe(this) { result ->
+            if (result.isSuccess) {
+                Toast.makeText(this, "Sign up successful", Toast.LENGTH_SHORT).show()
+                startActivity(Intent(this, DashboardActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Sign up failed: ${result.exceptionOrNull()?.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+    }
+
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK)
+        intent.type = "image/*"
+        galleryLauncher.launch(intent)
+    }
+
+    private val galleryLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data: Intent? = result.data
+                profileImageUri = data?.data
+                profileImageUri?.let {
+                    Picasso.get().load(it).into(binding.profileImageView)
+                }
+            }
+        }
+
+    private fun togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            binding.passwordEditText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            binding.passwordToggle.setImageResource(R.drawable.ic_eye_off)
+        } else {
+            binding.passwordEditText.inputType =
+                InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+            binding.passwordToggle.setImageResource(R.drawable.ic_eye)
+        }
+        binding.passwordEditText.setSelection(binding.passwordEditText.text.length) // Move cursor to the end
+        isPasswordVisible = !isPasswordVisible
+    }
+}

@@ -1,0 +1,4 @@
+Security is paramount. For long-term login sessions or sensitive data, consider using Firebase
+Authentication's secure methods.
+If you need to cache user data for performance reasons, implement a caching mechanism that refreshes
+data periodically or based on specific events.
