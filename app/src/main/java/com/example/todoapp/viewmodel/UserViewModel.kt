@@ -1,3 +1,4 @@
+import android.util.Log
 import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,6 +15,13 @@ class UserViewModel() : ViewModel() {
     val userMessage: LiveData<Boolean>
         get() = _userMessage
 
+    private val _loginResult = MutableLiveData<Boolean>()
+    val loginResult: LiveData<Boolean>
+        get() = _loginResult
+
+    companion object {
+        private const val TAG = "User ViewModel"
+    }
 
     private val _user = MutableLiveData<User?>()
     val user: LiveData<User?> = _user
@@ -29,16 +37,26 @@ class UserViewModel() : ViewModel() {
         }
     }
 
-    fun logInUser(email: String, password: String) {
+    fun logInUser(email: String, password: String): Boolean {
+        var loginSuccess = false
         viewModelScope.launch {
             try {
-                userRepository.logInUser(email, password)
-                _userMessage.postValue(true)
+                Log.d(TAG, "Attempting login with email: $email")
+                loginSuccess = userRepository.logInUser(email, password)
+                _loginResult.postValue(loginSuccess)
+                if (loginSuccess) {
+                    Log.d(TAG, "Login successful")
+                } else {
+                    Log.d(TAG, "Login failed: Invalid credentials or other error")
+                }
             } catch (e: Exception) {
-                _userMessage.postValue(false)
+                _loginResult.postValue(false)
+                Log.e(TAG, "Login failed: ${e.message}", e)
             }
         }
+        return loginSuccess
     }
+
 
     fun getUserData(userId: String) {
         userRepository.getLoggedInUser(userId)

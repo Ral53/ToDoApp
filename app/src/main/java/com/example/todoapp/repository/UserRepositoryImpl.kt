@@ -17,7 +17,7 @@ class UserRepositoryImpl() : UserRepository {
 //    private val credentialManager =  CredentialManager(context)
 
     companion object {
-        private const val TAG = "UserRepositoryImpl"
+        private const val TAG = "User RepositoryImpl"
     }
 
     override suspend fun signUpUser(email: String, password: String, userPass: User): Result<Unit> {
@@ -36,17 +36,17 @@ class UserRepositoryImpl() : UserRepository {
         }
     }
 
-    override suspend fun logInUser(email: String, password: String): Result<Unit> {
+    override suspend fun logInUser(email: String, password: String): Boolean {
         return try {
             auth.signInWithEmailAndPassword(email, password).await()
-//            credentialManager.setLoggedIn(true)
-            Log.d(TAG, "User Logged In Successfully")
-            Result.success(Unit)
+            Log.d(TAG, "Firebase authentication successful")
+            true // Return true indicating successful login
         } catch (e: Exception) {
-            Log.d(TAG, "Login Failed ${e.message}")
-            Result.failure(e)
+            Log.e(TAG, "Firebase authentication failed", e)
+            false // Return false indicating login failure
         }
     }
+
 
     override fun addUserInRealtimeDatabase(userId: String?, user: User) {
         if (userId != null) {

@@ -60,9 +60,9 @@ class SignupActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please select a profile picture", Toast.LENGTH_SHORT).show()
             } else {
                 uploadProfileImageAndSignUp(name, email, password)
-                startActivity(Intent(this, DashboardActivity::class.java))
+                startActivity(Intent(this, LoginActivity::class.java))
                 finish()
-                Toast.makeText(this, "Welcome to Dashboard", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "Please Login!!", Toast.LENGTH_LONG).show()
             }
         }
 

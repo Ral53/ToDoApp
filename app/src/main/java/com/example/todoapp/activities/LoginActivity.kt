@@ -3,6 +3,7 @@ package com.example.todoapp.activities
 import UserViewModel
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private lateinit var credentialManager: CredentialManager // Declare lateinit
 
+    companion object {
+        private const val TAG = "Login Activity"
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -30,6 +34,7 @@ class LoginActivity : AppCompatActivity() {
             if (email.isNotEmpty() && password.isNotEmpty()) {
                 userViewModel.logInUser(email, password)
                 credentialManager.setLoggedIn(true)
+                Log.d(TAG, "Attempting login with email: $email, $password")
             } else {
                 Toast.makeText(
                     this@LoginActivity,
@@ -50,24 +55,17 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupObservers() {
-        userViewModel.userMessage.observe(this) { success ->
+        userViewModel.loginResult.observe(this) { success ->
             if (success) {
+                Log.d(TAG, "Login successful, navigating to DashboardActivity")
                 Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
                 finish()
             } else {
-                Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
+                Log.d(TAG, "Login failed")
+                Toast.makeText(this@LoginActivity, "Login failed: Invalid credentials or other error", Toast.LENGTH_SHORT).show()
             }
         }
-//
-//        userViewModel.user.observe(this) { user ->
-//            user?.let {
-//                startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-//                finish()
-//            } ?: run {
-//                Toast.makeText(this@LoginActivity, "Login failed", Toast.LENGTH_SHORT).show()
-//            }
-//        }
     }
 
     private fun togglePasswordVisibility() {
