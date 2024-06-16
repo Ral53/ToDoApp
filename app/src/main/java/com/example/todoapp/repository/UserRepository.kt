@@ -9,5 +9,9 @@ interface UserRepository {
     fun addUserInRealtimeDatabase(userId: String?, user: User)
     fun getLoggedInUser(userId: String): LiveData<User?>
     suspend fun resetPassword(email: String): Result<Unit>
+
+
     fun logOut()
+
+
 }

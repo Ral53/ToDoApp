@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.todoapp.R
 import com.example.todoapp.databinding.ActivitySignupBinding
 import com.example.todoapp.model.User
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
 
 class SignupActivity : AppCompatActivity() {
@@ -24,15 +26,16 @@ class SignupActivity : AppCompatActivity() {
     private var profileImageUri: Uri? = null
     private var isPasswordVisible = false
 
+    private val firebaseStorage: FirebaseStorage = FirebaseStorage.getInstance()
+    private val storageReference: StorageReference = firebaseStorage.reference.child("profile_pictures")
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
         binding.selectImageButton.setOnClickListener {
             Log.d("SignUp Activity", "Opening Gallery")
-            Toast.makeText(this, "Opening Gallery", Toast.LENGTH_SHORT).show()
             openGallery()
         }
 
@@ -46,33 +49,20 @@ class SignupActivity : AppCompatActivity() {
             val name = binding.nameEditText.text.toString()
             val email = binding.emailEditText.text.toString()
             val password = binding.passwordEditText.text.toString()
-            val user = User(
-                uid = "", // ID will be set by Firebase Auth
-                name = name,
-                email = email,
-                profilePictureUrl = profileImageUri.toString()
-            )
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                Log.d("SignUp Activity", "Fields are empty")
-            }
-            else if (email.isEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                Toast.makeText(this, "Invalid email format or Email is empty", Toast.LENGTH_SHORT)
-                    .show()
-                Log.d("SignUp Activity", "Email Empty or Invalid")
+            } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                Toast.makeText(this, "Invalid email format", Toast.LENGTH_SHORT).show()
             } else if (password.length < 6) {
-                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT)
-                    .show()
-                Log.d("SignUp Activity", "Password too short")
+                Toast.makeText(this, "Password must be at least 6 characters", Toast.LENGTH_SHORT).show()
             } else if (profileImageUri == null) {
                 Toast.makeText(this, "Please select a profile picture", Toast.LENGTH_SHORT).show()
-                Log.d("SignUp Activity", "Image not selected")
             } else {
-                userViewModel.signUpUser(email, password, user)
-//                addUserProfilePicture(user.uid, profileImageUri)
-                Toast.makeText(this, "SignUp Successful", Toast.LENGTH_SHORT).show()
-                Log.d("SignUp Activity", "Signed User $user")
+                uploadProfileImageAndSignUp(name, email, password)
+                startActivity(Intent(this, DashboardActivity::class.java))
+                finish()
+                Toast.makeText(this, "Welcome to Dashboard", Toast.LENGTH_LONG).show()
             }
         }
 
@@ -97,6 +87,32 @@ class SignupActivity : AppCompatActivity() {
                 }
             }
         }
+
+    private fun uploadProfileImageAndSignUp(name: String, email: String, password: String) {
+        profileImageUri?.let { uri ->
+            val fileName = "${System.currentTimeMillis()}.jpg"
+            val fileRef = storageReference.child(fileName)
+            fileRef.putFile(uri)
+                .addOnSuccessListener {
+                    fileRef.downloadUrl.addOnSuccessListener { downloadUrl ->
+                        val user = User(
+                            uid = "",
+                            name = name,
+                            email = email,
+                            profilePictureUrl = downloadUrl.toString()
+                        )
+                        userViewModel.signUpUser(email, password, user)
+                        Toast.makeText(this, "SignUp Successful", Toast.LENGTH_SHORT).show()
+                        Log.d("SignUp Activity", "Signed User $user")
+                    }.addOnFailureListener {
+                        Log.d("SignUp Activity", "Failed to get download URL")
+                    }
+                }
+                .addOnFailureListener {
+                    Log.d("SignUp Activity", "Failed to upload image")
+                }
+        }
+    }
 
     private fun togglePasswordVisibility() {
         if (isPasswordVisible) {

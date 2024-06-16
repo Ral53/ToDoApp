@@ -28,7 +28,7 @@ class UserRepositoryImpl() : UserRepository {
 //            storeUserData(uid, name, profileUri)
             addUserInRealtimeDatabase(uid, userPass, )
             Log.d(TAG, "Successful Firebase Authentication and Realtime Database Storage")
-            Log.d(TAG, "${user}")
+            Log.d(TAG, "Signe up : ${user}")
             Result.success(Unit)
         } catch (e: Exception) {
             Log.e(TAG, "Sign up failed", e)
