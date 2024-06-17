@@ -62,7 +62,7 @@ class LoginActivity : AppCompatActivity() {
                 Log.d(TAG, "Login successful, navigating to DashboardActivity")
                 Toast.makeText(this@LoginActivity, "Login successful", Toast.LENGTH_SHORT).show()
                 startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-                finish()
+//                finish()
             } else {
                 Log.d(TAG, "Login failed")
                 Toast.makeText(this@LoginActivity, "Login failed: Invalid credentials or other error", Toast.LENGTH_SHORT).show()
@@ -93,7 +93,7 @@ class LoginActivity : AppCompatActivity() {
     fun checkAutoLogin() {
         if (credentialManager.checkIfLoggedIn()) {
             startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
-            finish()
+//            finish()
         } else {
             return
         }

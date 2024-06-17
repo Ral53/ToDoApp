@@ -1,56 +1,58 @@
-package com.example.todoapp.viewmodel
-
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.todoapp.model.Task
+import com.example.todoapp.repository.TaskRepository
 import com.example.todoapp.repository.TaskRepositoryImpl
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class TaskViewModel : ViewModel() {
 
-    private val taskRepository = TaskRepositoryImpl()
-    private val _tasks = MutableLiveData<List<Task>>()
-    val tasks: LiveData<List<Task>> get() = _tasks
+    private val taskRepository: TaskRepository = TaskRepositoryImpl()
 
-    fun createTask(task: Task): LiveData<Boolean> {
-        val liveData = MutableLiveData<Boolean>()
-        viewModelScope.launch(Dispatchers.IO) {
+    private val _tasks: MutableLiveData<List<Task>> = MutableLiveData()
+    val tasks: LiveData<List<Task>>
+        get() = _tasks
+
+    private val _taskCreated: MutableLiveData<Boolean> = MutableLiveData()
+    val taskCreated: LiveData<Boolean>
+        get() = _taskCreated
+
+    private val _taskDeleted: MutableLiveData<Boolean> = MutableLiveData()
+    val taskDeleted: LiveData<Boolean>
+        get() = _taskDeleted
+
+    fun createTask(task: Task) {
+        viewModelScope.launch {
             try {
                 taskRepository.createTask(task)
-                liveData.postValue(true)
+                _taskCreated.value = true
             } catch (e: Exception) {
-                liveData.postValue(false)
+                _taskCreated.value = false
             }
         }
-        return liveData
     }
 
-    fun fetchTaskById(taskId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val task = taskRepository.getTaskById(taskId)
-            Log.d("TaskViewModel", "Fetched task by ID: $task")
+    fun getAllTasks(userId: String) {
+        viewModelScope.launch {
+            try {
+                val userTasks = taskRepository.getAllTasks(userId)
+                _tasks.value = userTasks
+            } catch (e: Exception) {
+                _tasks.value = emptyList()
+            }
         }
     }
 
-    fun deleteTask(taskId: String): LiveData<Boolean> {
-        val liveData = MutableLiveData<Boolean>()
-        viewModelScope.launch(Dispatchers.IO) {
-            val success = taskRepository.deleteTask(taskId)
-            liveData.postValue(success)
-            Log.d("TaskViewModel", "Deleted task with ID: $taskId, success: $success")
-        }
-        return liveData
-    }
-
-    fun fetchTasksByUserId(userId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val tasks = taskRepository.getTasksByUserId(userId)
-            _tasks.postValue(tasks)
-            Log.d("TaskViewModel", "Fetched tasks by user ID: $userId, tasks: $tasks")
+    fun deleteTask(taskId: String) {
+        viewModelScope.launch {
+            try {
+                val isDeleted = taskRepository.deleteTask(taskId)
+                _taskDeleted.value = isDeleted
+            } catch (e: Exception) {
+                _taskDeleted.value = false
+            }
         }
     }
 }
