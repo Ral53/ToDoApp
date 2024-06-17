@@ -1,33 +1,27 @@
 package com.example.todoapp.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.todoapp.R;
 import com.example.todoapp.model.Task;
 import com.example.todoapp.viewmodel.TaskViewModel;
-
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder> {
 
     private List<Task> tasks;
     private TaskViewModel taskViewModel;
-    private SimpleDateFormat dateFormat;
 
     public TaskAdapter(List<Task> tasks, TaskViewModel taskViewModel) {
         this.tasks = tasks;
         this.taskViewModel = taskViewModel;
-        this.dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     }
 
     @Override
@@ -38,39 +32,36 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
 
     @Override
     public void onBindViewHolder(TaskViewHolder holder, int position) {
-        Task task = tasks.get(position);
+        Task task = tasks.get(holder.getAdapterPosition());
+        Log.d("TaskAdapter", "Binding task: " + task);
         holder.titleTextView.setText(task.getName());
         holder.descriptionTextView.setText(task.getMessage());
 
-        Date dueDate = null;
-        try {
-            dueDate = task.getDueDate(); // Ensure this returns a Date object
-        } catch (ClassCastException e) {
-            // If dueDate is not a Date object, handle the error or convert appropriately
-            // Example: If getDueDate() returns a String, parse it to Date
+        // Format due date if it exists and is a Date object
+        if (task.getDueDate() != null) {
             try {
-                dueDate = dateFormat.parse(task.getDueDate().toString());
-            } catch (ParseException pe) {
-                pe.printStackTrace();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+                String formattedDueDate = dateFormat.format(task.getDueDate());
+                holder.dueDateTextView.setText("Due Date: " + formattedDueDate);
+            } catch (Exception e) {
+                holder.dueDateTextView.setText("Due Date: Invalid date");
             }
-        }
-
-        if (dueDate != null) {
-            String formattedDueDate = dateFormat.format(dueDate);
-            holder.dueDateTextView.setText("Due Date: " + formattedDueDate);
         } else {
-            holder.dueDateTextView.setText("Due Date: N/A");
+            holder.dueDateTextView.setText("Due Date: Not set");
         }
 
         holder.deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                taskViewModel.deleteTask(task.getId()).observe((LifecycleOwner) holder.itemView.getContext(), success -> {
-                    if (success) {
-                        tasks.remove(position);
-                        notifyItemRemoved(position);
-                    }
-                });
+                int adapterPosition = holder.getAdapterPosition();
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    taskViewModel.deleteTask(task.getId()).observe((LifecycleOwner) holder.itemView.getContext(), success -> {
+                        if (success) {
+                            tasks.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                        }
+                    });
+                }
             }
         });
     }
@@ -80,7 +71,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
         return tasks.size();
     }
 
+    public void updateTasks(List<Task> newTasks) {
+        this.tasks = newTasks;
+        notifyDataSetChanged();
+    }
+
     public static class TaskViewHolder extends RecyclerView.ViewHolder {
+
         TextView titleTextView;
         TextView descriptionTextView;
         TextView dueDateTextView;
@@ -91,7 +88,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskAdapter.TaskViewHolder
             titleTextView = itemView.findViewById(R.id.task_title);
             descriptionTextView = itemView.findViewById(R.id.task_Desc);
             dueDateTextView = itemView.findViewById(R.id.due_date);
-            deleteButton = itemView.findViewById(R.id.my_image_button);
+            deleteButton = itemView.findViewById(R.id.delete_button);
         }
     }
 }

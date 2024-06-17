@@ -1,4 +1,3 @@
-// TaskRepositoryImpl.kt
 package com.example.todoapp.repository
 
 import android.util.Log
@@ -10,7 +9,7 @@ import kotlin.coroutines.suspendCoroutine
 
 class TaskRepositoryImpl : TaskRepository {
 
-    private val auth : FirebaseAuth = FirebaseAuth.getInstance()
+    private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val database: DatabaseReference = FirebaseDatabase.getInstance().getReference("Tasks")
 
     override suspend fun createTask(task: Task): Task {
@@ -18,18 +17,22 @@ class TaskRepositoryImpl : TaskRepository {
         val taskId = database.child(userId).push().key ?: throw RuntimeException("Failed to push task")
         val newTask = task.copy(id = taskId)
         database.child(userId).child(taskId).setValue(newTask)
-        Log.d("TaskRepositoryImpl", "Repository Impl: $newTask")
+        Log.d("TaskRepositoryImpl", "Created task: $newTask")
         return newTask
     }
 
     override suspend fun getTaskById(taskId: String): Task? {
+        val userId = auth.currentUser?.uid ?: throw RuntimeException("User not authenticated")
         return suspendCoroutine { continuation ->
-            database.child(taskId).addListenerForSingleValueEvent(object : ValueEventListener {
+            database.child(userId).child(taskId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    continuation.resume(snapshot.getValue(Task::class.java))
+                    val task = snapshot.getValue(Task::class.java)
+                    Log.d("TaskRepositoryImpl", "Fetched task by ID: $task")
+                    continuation.resume(task)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e("TaskRepositoryImpl", "Error fetching task by ID: $error")
                     continuation.resume(null)
                 }
             })
@@ -47,10 +50,12 @@ class TaskRepositoryImpl : TaskRepository {
                             tasks.add(task)
                         }
                     }
+                    Log.d("TaskRepositoryImpl", "Fetched all tasks: $tasks")
                     continuation.resume(tasks)
                 }
 
                 override fun onCancelled(error: DatabaseError) {
+                    Log.e("TaskRepositoryImpl", "Error fetching all tasks: $error")
                     continuation.resume(emptyList())
                 }
             })
@@ -58,10 +63,13 @@ class TaskRepositoryImpl : TaskRepository {
     }
 
     override suspend fun deleteTask(taskId: String): Boolean {
+        val userId = auth.currentUser?.uid ?: throw RuntimeException("User not authenticated")
         return try {
-            database.child(taskId).removeValue()
+            database.child(userId).child(taskId).removeValue()
+            Log.d("TaskRepositoryImpl", "Deleted task with ID: $taskId")
             true
         } catch (e: Exception) {
+            Log.e("TaskRepositoryImpl", "Error deleting task with ID: $taskId", e)
             false
         }
     }
@@ -70,14 +78,3 @@ class TaskRepositoryImpl : TaskRepository {
         return getAllTasks(userId)
     }
 }
-
-//override suspend fun updateTask(task: Task): Boolean {
-//    val userId = task.userId
-//    val taskId = task.id
-//    return try {
-//        database.child(userId).child(taskId).setValue(task)
-//        true
-//    } catch (e: Exception) {
-//        false
-//    }
-//}

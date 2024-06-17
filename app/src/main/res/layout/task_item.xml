@@ -28,7 +28,7 @@
         android:textSize="16sp"  android:text="Due Date:"  android:layout_below="@id/task_Desc"  android:layout_alignLeft="@id/task_title" />
 
     <ImageButton
-        android:id="@+id/my_image_button"
+        android:id="@+id/delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/baseline_delete_24"

@@ -22,6 +22,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.Calendar
+import java.util.Date
 
 class AddToDoActivity : AppCompatActivity() {
     private lateinit var binding: ActivityAddToDoBinding
@@ -41,18 +43,34 @@ class AddToDoActivity : AppCompatActivity() {
         binding.fab.setOnClickListener {
             val name = binding.nameEditText.text.toString()
             val message = binding.messageEditText.text.toString()
-            val dueDate = Triple(binding.datePicker.dayOfMonth, binding.datePicker.month + 1, binding.datePicker.year).toString()
+            val dueDate = Triple(
+                binding.datePicker.dayOfMonth,
+                binding.datePicker.month + 1,
+                binding.datePicker.year
+            )
+
+            val year: Int = dueDate.first
+            val month: Int = dueDate.second - 1 // Months in Java are 0-indexed
+            val day: Int = dueDate.third
+
+            // Create a Calendar object and set the year, month, and day
+            val calendar: Calendar = Calendar.getInstance()
+            calendar.set(year, month, day)
+            // Get a Date object from the Calendar
+            val date: Date = calendar.getTime()
+
 
             // Get the current date and time
             val currentDate = LocalDate.now()
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val createdDate = currentDate.format(formatter)
 
-            if (name.isEmpty() || message.isEmpty() || dueDate.isEmpty() || createdDate.isNullOrEmpty()) {
+            if (name.isEmpty() || message.isEmpty() || date != null || createdDate.isNullOrEmpty() || createdDate.isNullOrEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             } else {
-                val newTask = Task(name = name, message = message, dueDate = dueDate, createdDate = createdDate)
+                val newTask =
+                    Task(name = name, message = message, dueDate = date, createdDate = createdDate)
                 Log.d("AddToDoActivity", "Add Task: $newTask")
 
                 // Call createTask and observe the returned LiveData
@@ -67,13 +85,6 @@ class AddToDoActivity : AppCompatActivity() {
                 }
             }
         }
-
-//        binding.clearAll.setOnClickListener {
-//            ClearAll().deleteAllFromDatabase()
-//            ClearAll().deleteAllFromStorage()
-//            ClearAll().deleteUser()
-//            credentialManager.setLoggedIn(false)
-//        }
     }
 }
 
