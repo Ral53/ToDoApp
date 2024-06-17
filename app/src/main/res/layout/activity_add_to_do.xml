@@ -43,24 +43,7 @@
         android:layout_margin="16dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
-        android:src="@android:drawable/ic_input_add"
+        android:src="@drawable/baseline_check_24"
         android:contentDescription="Add"/>
-
-    <Button
-        android:id="@+id/logout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="LogOut"
-        android:layout_margin="16dp"
-        android:layout_alignParentBottom="true" />
-
-    <Button
-        android:id="@+id/clearAll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="16dp"
-        android:text="Clear All" />
 
 </RelativeLayout>

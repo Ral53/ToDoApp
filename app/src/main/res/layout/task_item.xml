@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -18,18 +18,22 @@
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:text="Task Description"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:layout_below="@id/task_title" />
 
     <TextView
-        android:id="@+id/task_description"
+        android:id="@+id/due_date"
         android:layout_width="wrap_content"
-        android:text="Task Title"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:textSize="16sp"  android:text="Due Date:"  android:layout_below="@id/task_Desc"  android:layout_alignLeft="@id/task_title" />
 
-    <TextView
-        android:id="@+id/task_due_date"
+    <ImageButton
+        android:id="@+id/my_image_button"
         android:layout_width="wrap_content"
-        android:text="Task Title"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:src="@drawable/baseline_delete_24"
+        android:contentDescription="Delete Task"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true" />
 
-</LinearLayout>
+</RelativeLayout>

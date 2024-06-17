@@ -28,35 +28,30 @@ class TaskViewModel() : ViewModel() {
         return liveData
     }
 
-    // Function to fetch a task by its ID
-    fun fetchTaskById(taskId: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val task = taskRepository.getTaskById(taskId)
-            // Optionally, handle the retrieved task (e.g., update UI)
-        }
-    }
+    private val _tasks = MutableLiveData<List<Task>>()
+    val tasks: LiveData<List<Task>> get() = _tasks
 
-    // Function to update an existing task
-    fun updateTask(task: Task) {
-        GlobalScope.launch(Dispatchers.IO) {
-            taskRepository.updateTask(task)
-            // Optionally, perform any additional operations after task update
-        }
-    }
-
-    // Function to delete a task by its ID
-    fun deleteTask(taskId: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            taskRepository.deleteTask(taskId)
-            // Optionally, perform any additional operations after task deletion
-        }
-    }
-
-    // Function to fetch all tasks for a specific user
     fun fetchTasksByUserId(userId: String) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val tasks = taskRepository.getTasksByUserId(userId)
-            // Optionally, handle the retrieved list of tasks (e.g., update UI)
+        viewModelScope.launch(Dispatchers.IO) {
+            val taskList = taskRepository.getTasksByUserId(userId)
+            _tasks.postValue(taskList)
         }
+    }
+
+    fun deleteTask(taskId: String): LiveData<Boolean> {
+        val liveData = MutableLiveData<Boolean>()
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = taskRepository.deleteTask(taskId)
+            liveData.postValue(result)
+        }
+        return liveData
     }
 }
+
+//// Function to update an existing task
+//fun updateTask(task: Task) {
+//    GlobalScope.launch(Dispatchers.IO) {
+//        taskRepository.updateTask(task)
+//        // Optionally, perform any additional operations after task update
+//    }
+//}

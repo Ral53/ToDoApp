@@ -15,7 +15,6 @@ class TaskRepositoryImpl : TaskRepository {
 
     override suspend fun createTask(task: Task): Task {
         val userId = auth.currentUser?.uid ?: throw RuntimeException("User not authenticated")
-//        val userId = "2345678345"
         val taskId = database.child(userId).push().key ?: throw RuntimeException("Failed to push task")
         val newTask = task.copy(id = taskId)
         database.child(userId).child(taskId).setValue(newTask)
@@ -58,17 +57,6 @@ class TaskRepositoryImpl : TaskRepository {
         }
     }
 
-    override suspend fun updateTask(task: Task): Boolean {
-        val userId = task.userId
-        val taskId = task.id
-        return try {
-            database.child(userId).child(taskId).setValue(task)
-            true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
     override suspend fun deleteTask(taskId: String): Boolean {
         return try {
             database.child(taskId).removeValue()
@@ -82,3 +70,14 @@ class TaskRepositoryImpl : TaskRepository {
         return getAllTasks(userId)
     }
 }
+
+//override suspend fun updateTask(task: Task): Boolean {
+//    val userId = task.userId
+//    val taskId = task.id
+//    return try {
+//        database.child(userId).child(taskId).setValue(task)
+//        true
+//    } catch (e: Exception) {
+//        false
+//    }
+//}

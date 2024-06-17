@@ -68,19 +68,12 @@ class AddToDoActivity : AppCompatActivity() {
             }
         }
 
-        binding.logout.setOnClickListener{
-            credentialManager.setLoggedIn(false)
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            Toast.makeText(this, "Logged out!", Toast.LENGTH_SHORT).show();
-        }
-
-        binding.clearAll.setOnClickListener {
-            ClearAll().deleteAllFromDatabase()
-            ClearAll().deleteAllFromStorage()
-            ClearAll().deleteUser()
-            credentialManager.setLoggedIn(false)
-        }
+//        binding.clearAll.setOnClickListener {
+//            ClearAll().deleteAllFromDatabase()
+//            ClearAll().deleteAllFromStorage()
+//            ClearAll().deleteUser()
+//            credentialManager.setLoggedIn(false)
+//        }
     }
 }
 

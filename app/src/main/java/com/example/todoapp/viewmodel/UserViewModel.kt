@@ -1,5 +1,4 @@
 import android.util.Log
-import android.util.Patterns
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.todoapp.model.User
 import kotlinx.coroutines.launch
 
-class UserViewModel() : ViewModel() {
+class UserViewModel : ViewModel() {
 
     private val userRepository = UserRepositoryImpl()
 
@@ -20,29 +19,35 @@ class UserViewModel() : ViewModel() {
         get() = _loginResult
 
     companion object {
-        private const val TAG = "User ViewModel"
+        private const val TAG = "UserViewModel"
     }
 
     private val _user = MutableLiveData<User?>()
-    val user: LiveData<User?> = _user
+    val user: LiveData<User?> get() = userRepository.getLoggedInUser()
+
+    private val _profilePictureUrl = MutableLiveData<String?>()
+    val profilePictureUrl: LiveData<String?> get() = _profilePictureUrl
 
     fun signUpUser(email: String, password: String, user: User) {
         viewModelScope.launch {
             try {
-                userRepository.signUpUser(email, password, user)
-                _userMessage.postValue(true)
+                val result = userRepository.signUpUser(email, password, user)
+                if (result.isSuccess) {
+                    _userMessage.postValue(true)
+                } else {
+                    _userMessage.postValue(false)
+                }
             } catch (e: Exception) {
                 _userMessage.postValue(false)
+                Log.e(TAG, "Sign up failed: ${e.message}", e)
             }
         }
     }
 
-    fun logInUser(email: String, password: String): Boolean {
-        var loginSuccess = false
+    fun logInUser(email: String, password: String) {
         viewModelScope.launch {
             try {
-                Log.d(TAG, "Attempting login with email: $email")
-                loginSuccess = userRepository.logInUser(email, password)
+                val loginSuccess = userRepository.logInUser(email, password)
                 _loginResult.postValue(loginSuccess)
                 if (loginSuccess) {
                     Log.d(TAG, "Login successful")
@@ -54,21 +59,30 @@ class UserViewModel() : ViewModel() {
                 Log.e(TAG, "Login failed: ${e.message}", e)
             }
         }
-        return loginSuccess
     }
 
+    private val _fullName = MutableLiveData<String?>()
+    val fullName: LiveData<String?> get() = _fullName
 
-    fun getUserData(userId: String) {
-        userRepository.getLoggedInUser(userId)
-    }
+    private val _email = MutableLiveData<String?>()
+    val email: LiveData<String?> get() = _email
 
-    fun resetPassword(email: String) {
-        viewModelScope.launch {
-            userRepository.resetPassword(email)
+    init {
+        user.observeForever { user ->
+            if (user != null) {
+                _fullName.value = user.name
+                _email.value = user.email
+                _profilePictureUrl.value = user.profilePictureUrl
+            } else {
+                _fullName.value = null
+                _email.value = null
+                _profilePictureUrl.value = null
+            }
         }
     }
 
     fun logOut() {
         userRepository.logOut()
+        Log.d(TAG, "User logged out successfully")
     }
 }
