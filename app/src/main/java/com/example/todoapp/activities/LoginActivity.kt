@@ -26,6 +26,8 @@ class LoginActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         credentialManager = CredentialManager(this)
+        checkAutoLogin()
+
         setupObservers()
 
         binding.loginButton.setOnClickListener {
@@ -86,5 +88,14 @@ class LoginActivity : AppCompatActivity() {
         )
 
         binding.passwordEditText.setSelection(binding.passwordEditText.text.length)
+    }
+
+    fun checkAutoLogin() {
+        if (credentialManager.checkIfLoggedIn()) {
+            startActivity(Intent(this@LoginActivity, DashboardActivity::class.java))
+            finish()
+        } else {
+            return
+        }
     }
 }

@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.todoapp.R
 import com.example.todoapp.databinding.ActivitySignupBinding
 import com.example.todoapp.model.User
+import com.example.todoapp.utils.CredentialManager
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.squareup.picasso.Picasso
@@ -22,6 +23,7 @@ class SignupActivity : AppCompatActivity() {
 
     private val userViewModel: UserViewModel by viewModels()
     private lateinit var binding: ActivitySignupBinding
+    private lateinit var credentialManager: CredentialManager // Declare lateinit
 
     private var profileImageUri: Uri? = null
     private var isPasswordVisible = false
@@ -33,6 +35,8 @@ class SignupActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignupBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        credentialManager = CredentialManager(this)
 
         binding.selectImageButton.setOnClickListener {
             Log.d("SignUp Activity", "Opening Gallery")
@@ -62,6 +66,7 @@ class SignupActivity : AppCompatActivity() {
                 uploadProfileImageAndSignUp(name, email, password)
                 startActivity(Intent(this, LoginActivity::class.java))
                 finish()
+                credentialManager.setLoggedIn(false)
                 Toast.makeText(this, "Please Login!!", Toast.LENGTH_LONG).show()
             }
         }

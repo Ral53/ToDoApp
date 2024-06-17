@@ -12,13 +12,17 @@ class CredentialManager(context: Context) {
         Context.MODE_PRIVATE
     )
 
-    fun isLoggedIn(): Boolean {
+    fun checkIfLoggedIn(): Boolean {
         return credentialsPref.getBoolean("isLoggedIn", false)
     }
 
     fun setLoggedIn(isLoggedIn: Boolean) {
         credentialsPref.edit().putBoolean("isLoggedIn", isLoggedIn).apply()
     }
+}
+
+
+
 
 //    private val userPrefs: SharedPreferences = context.getSharedPreferences(
 //        "USER_PREFS",
@@ -39,5 +43,3 @@ class CredentialManager(context: Context) {
 //    fun clearUserData() {
 //        userPrefs.edit().remove("userData").apply()
 //    }
-}
-

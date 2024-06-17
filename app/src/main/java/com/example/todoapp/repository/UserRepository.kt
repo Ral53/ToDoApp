@@ -11,6 +11,4 @@ interface UserRepository {
     fun getLoggedInUser(userId: String): LiveData<User?>
     suspend fun resetPassword(email: String): Result<Unit>
     fun logOut()
-
-
 }
