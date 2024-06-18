@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.R
 import com.example.todoapp.model.Task
@@ -34,6 +35,6 @@ class TaskAdapter(private val taskList: List<Task>, private val onDeleteClickLis
         val textTaskName: TextView = itemView.findViewById(R.id.task_title)
         val textDescription: TextView = itemView.findViewById(R.id.task_Desc)
         val textCreatedAt: TextView = itemView.findViewById(R.id.created_date)
-        val buttonDelete: Button = itemView.findViewById(R.id.delete_button)
+        val buttonDelete: AppCompatImageButton = itemView.findViewById(R.id.delete_button)
     }
 }
