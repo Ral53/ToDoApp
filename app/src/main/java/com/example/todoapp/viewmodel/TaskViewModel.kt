@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -11,36 +12,36 @@ class TaskViewModel : ViewModel() {
 
     private val taskRepository: TaskRepository = TaskRepositoryImpl()
 
-    private val _tasks: MutableLiveData<List<Task>> = MutableLiveData()
-    val tasks: LiveData<List<Task>>
-        get() = _tasks
+    private val _tasks = MutableLiveData<List<Task>>()
+    val tasks: LiveData<List<Task>> = _tasks
 
-    private val _taskCreated: MutableLiveData<Boolean> = MutableLiveData()
-    val taskCreated: LiveData<Boolean>
-        get() = _taskCreated
+    private val _taskCreated = MutableLiveData<Boolean>()
+    val taskCreated: LiveData<Boolean> = _taskCreated
 
-    private val _taskDeleted: MutableLiveData<Boolean> = MutableLiveData()
-    val taskDeleted: LiveData<Boolean>
-        get() = _taskDeleted
+    private val _taskDeleted = MutableLiveData<Boolean>()
+    val taskDeleted: LiveData<Boolean> = _taskDeleted
 
     fun createTask(task: Task) {
         viewModelScope.launch {
             try {
                 taskRepository.createTask(task)
-                _taskCreated.value = true
+                _taskCreated.postValue(true)
+                fetchTasks(task.userId)
             } catch (e: Exception) {
-                _taskCreated.value = false
+                _taskCreated.postValue(false)
             }
         }
     }
 
-    fun getAllTasks(userId: String) {
+    fun fetchTasks(userId: String) {
         viewModelScope.launch {
             try {
                 val userTasks = taskRepository.getAllTasks(userId)
                 _tasks.value = userTasks
+                Log.d("TaskViewModel", "fetchTasks: Fetched ${userTasks.size} tasks for userId: $userId")
             } catch (e: Exception) {
                 _tasks.value = emptyList()
+                Log.e("TaskViewModel", "fetchTasks: Failed to fetch tasks for userId: $userId", e)
             }
         }
     }
@@ -50,8 +51,14 @@ class TaskViewModel : ViewModel() {
             try {
                 val isDeleted = taskRepository.deleteTask(taskId)
                 _taskDeleted.value = isDeleted
+                if (isDeleted) {
+                    Log.d("TaskViewModel", "deleteTask: Task deleted successfully with id: $taskId")
+                } else {
+                    Log.d("TaskViewModel", "deleteTask: Failed to delete task with id: $taskId")
+                }
             } catch (e: Exception) {
                 _taskDeleted.value = false
+                Log.e("TaskViewModel", "deleteTask: Failed to delete task with id: $taskId", e)
             }
         }
     }

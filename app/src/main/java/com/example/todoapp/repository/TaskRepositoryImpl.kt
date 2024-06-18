@@ -1,5 +1,6 @@
 package com.example.todoapp.repository
 
+import android.util.Log
 import com.example.todoapp.model.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -23,17 +24,14 @@ class TaskRepositoryImpl : TaskRepository {
 
     override suspend fun getAllTasks(userId: String): List<Task> {
         val tasks = mutableListOf<Task>()
-        tasksReference.orderByChild("userId").equalTo(userId)
-            .get()
-            .addOnSuccessListener { dataSnapshot ->
-                for (snapshot in dataSnapshot.children) {
-                    val task = snapshot.getValue(Task::class.java)
-                    if (task != null) {
-                        tasks.add(task)
-                    }
-                }
+        val dataSnapshot = tasksReference.orderByChild("userId").equalTo(userId).get().await()
+        for (snapshot in dataSnapshot.children) {
+            val task = snapshot.getValue(Task::class.java)
+            task?.let {
+                tasks.add(it)
             }
-            .await()
+        }
+        Log.d("TaskRepositoryImpl", "getAllTasks: Fetched ${tasks.size} tasks for userId: $userId")
         return tasks
     }
 

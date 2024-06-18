@@ -1,21 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.DashboardActivity">
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/task_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_above="@id/profile_button"
+        android:layout_alignParentTop="true"
+        android:padding="8dp" />
 
     <Button
         android:id="@+id/profile_button"
@@ -23,21 +20,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="75dp"
+        android:layout_marginBottom="16dp"
         android:layout_marginEnd="16dp"
-        android:drawableEnd="@drawable/baseline_double_arrow_24"
-        android:text="Profile" />
-
+        android:text="Profile"
+        android:drawableEnd="@drawable/baseline_double_arrow_24" />
 
     <Button
         android:id="@+id/new_task_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
+        android:layout_above="@id/profile_button"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:text="New Task"
-        android:drawableEnd="@drawable/baseline_double_arrow_24"
-        tools:layout_editor_absoluteX="312dp"
-        tools:layout_editor_absoluteY="349dp" />
+        android:drawableEnd="@drawable/baseline_double_arrow_24" />
+
 </RelativeLayout>
