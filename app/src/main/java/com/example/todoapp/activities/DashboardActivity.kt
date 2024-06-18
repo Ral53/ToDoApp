@@ -39,8 +39,10 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun observeViewModel() {
         viewModel.tasks.observe(this, Observer { tasks ->
+            // Convert the observed list to a mutable list
+            val mutableTasks = tasks.toMutableList()
             // Update RecyclerView with the latest tasks
-            val adapter = TaskAdapter(tasks) { task ->
+            val adapter = TaskAdapter(mutableTasks) { task ->
                 deleteTask(task)
             }
             binding.taskList.adapter = adapter

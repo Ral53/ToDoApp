@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.todoapp.R
 import com.example.todoapp.model.Task
 
-class TaskAdapter(private val taskList: List<Task>, private val onDeleteClickListener: (Task) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
+class TaskAdapter(private var taskList: MutableList<Task>, private val onDeleteClickListener: (Task) -> Unit) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.task_item, parent, false)
@@ -36,5 +36,16 @@ class TaskAdapter(private val taskList: List<Task>, private val onDeleteClickLis
         val textDescription: TextView = itemView.findViewById(R.id.task_Desc)
         val textCreatedAt: TextView = itemView.findViewById(R.id.created_date)
         val buttonDelete: AppCompatImageButton = itemView.findViewById(R.id.delete_button)
+    }
+
+    fun updateTasks(newTasks: List<Task>) {
+        taskList.clear()
+        taskList.addAll(newTasks)
+        notifyDataSetChanged()
+    }
+
+    fun removeTask(position: Int) {
+        taskList.removeAt(position)
+        notifyItemRemoved(position)
     }
 }

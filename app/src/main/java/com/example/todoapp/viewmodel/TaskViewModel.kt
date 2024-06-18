@@ -50,16 +50,17 @@ class TaskViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val isDeleted = taskRepository.deleteTask(taskId)
-                _taskDeleted.value = isDeleted
                 if (isDeleted) {
-                    Log.d("TaskViewModel", "deleteTask: Task deleted successfully with id: $taskId")
-                } else {
-                    Log.d("TaskViewModel", "deleteTask: Failed to delete task with id: $taskId")
+                    // Update tasks list after successful deletion
+                    val updatedTasks = _tasks.value?.toMutableList()
+                    updatedTasks?.removeAll { it.id == taskId }
+                    _tasks.value = updatedTasks!!
                 }
+                _taskDeleted.value = isDeleted
             } catch (e: Exception) {
                 _taskDeleted.value = false
-                Log.e("TaskViewModel", "deleteTask: Failed to delete task with id: $taskId", e)
             }
         }
     }
+
 }
